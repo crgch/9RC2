@@ -355,6 +355,16 @@ a{color:inherit}
 .fhead + .fields{margin-top:18px}
 
 
+/* 성채도: 제목 바로 아래 지도 */
+#view-kmap .title-blk{
+  margin-bottom:0;
+  padding-bottom:10px;
+  border-bottom:0;
+}
+#view-kmap .scanner{
+  margin-top:8px;
+}
+
 /* ===== 모바일 성채도 확대 최적화 ===== */
 @media (max-width: 680px){
   #view-kmap.view.doc{
@@ -378,21 +388,6 @@ a{color:inherit}
     height:auto;
   }
 
-  .scanner::after{
-    content:"좌우로 밀어 성채 내부를 스캔";
-    position:absolute;
-    right:12px;
-    bottom:10px;
-    z-index:5;
-    font-family:"Chakra Petch",monospace;
-    font-size:10px;
-    letter-spacing:.14em;
-    color:var(--amber);
-    background:rgba(4,6,11,.72);
-    border:1px solid rgba(255,154,46,.35);
-    padding:5px 8px;
-    pointer-events:none;
-  }
 
   .scan-status{
     font-size:9.5px;
@@ -526,7 +521,6 @@ a{color:inherit}
     <div class="title-blk reveal">
       <div class="sec-mark"><span class="code">SEC-2K</span><span class="ko">Walled City · Internal Scan</span></div>
       <h2>구룡성채 전체 지도</h2>
-      <p class="lede">손끝으로 밀어 스캔하라. <em>성채는 한 화면에 잡히지 않는다.</em> 구역을 누르면 내부 거점이 열린다.</p>
     </div>
   </div>
 
@@ -1056,28 +1050,57 @@ try{ initGlobe(); }catch(err){ console.error('globe',err);
   var chips=Array.prototype.slice.call(document.querySelectorAll('.chip'));
   function arch(group){ document.querySelectorAll('.bgcard').forEach(function(c){ c.style.display=(c.getAttribute('data-arch')===group)?'':'none'; }); }
   function head(t){ var h=document.getElementById('arch-head'); if(h)h.textContent=t; }
+
+  function centerMapOn(id){
+    var sc=document.querySelector('#view-kmap .scanner');
+    if(!sc || !svg || sc.scrollWidth<=sc.clientWidth) return;
+
+    if(id==='common'){
+      sc.scrollTo({left:(sc.scrollWidth-sc.clientWidth)/2,behavior:'smooth'});
+      return;
+    }
+
+    var g=svg.querySelector('.district[data-id="'+id+'"]');
+    if(!g || !g.getBBox) return;
+
+    var box=g.getBBox();
+    var vb=svg.viewBox.baseVal;
+    var rendered=svg.getBoundingClientRect();
+    var scale=rendered.width/vb.width;
+    var centerX=(box.x+box.width/2-vb.x)*scale;
+    var target=centerX-sc.clientWidth/2;
+    var max=sc.scrollWidth-sc.clientWidth;
+    target=Math.max(0,Math.min(max,target));
+    sc.scrollTo({left:target,behavior:'smooth'});
+  }
+
+  function centerChip(c){
+    if(!c || !c.scrollIntoView) return;
+    c.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+  }
+
   function select(id){
     if(id==='common'){
       svg.classList.remove('kdim');
       svg.querySelectorAll('.district').forEach(function(g){g.classList.remove('active');});
       chips.forEach(function(c){var on=c.getAttribute('data-id')==='common';c.classList.toggle('on',on);
-        c.style.background=on?'#33b4c0':''; c.style.borderColor=on?'#33b4c0':'';});
+        c.style.background=on?'#33b4c0':''; c.style.borderColor=on?'#33b4c0':''; if(on) centerChip(c);});
       info.style.borderColor='';
       info.innerHTML='<div class="iname" style="color:#cdd6e4">성채 공용 구조</div>'+
         '<div class="itype">ENTRANCE · UNDERGROUND</div>'+
         '<div class="idesc">성채 입구와 지하 카타콤. 아래 구역을 선택하면 해당 구역의 거점이 펼쳐진다.</div>';
-      head('성채 공용 · 입구 / 지하'); arch('common'); return;
+      head('성채 공용 · 입구 / 지하'); arch('common'); centerMapOn('common'); return;
     }
     var d=DMAP[id]; if(!d) return;
     svg.classList.add('kdim');
     svg.querySelectorAll('.district').forEach(function(g){g.classList.toggle('active',g.getAttribute('data-id')===id);});
     chips.forEach(function(c){var on=c.getAttribute('data-id')===id;c.classList.toggle('on',on);
-      c.style.background=on?d.color:''; c.style.borderColor=on?d.color:'';});
+      c.style.background=on?d.color:''; c.style.borderColor=on?d.color:''; if(on) centerChip(c);});
     info.style.borderColor=d.color;
     info.innerHTML='<div class="iname" style="color:'+d.color+'">'+d.name+' · '+d.sub+'</div>'+
       '<div class="itype">'+d.type+'</div><div class="idesc">'+d.desc+'</div>'+
       '<div class="ilm" style="color:'+d.color+'">'+d.lm.map(function(l){return '<span>'+l.n+'</span>';}).join('')+'</div>';
-    head(d.name+' · '+d.sub+' 거점'); arch(id);
+    head(d.name+' · '+d.sub+' 거점'); arch(id); centerMapOn(id);
   }
   svg.querySelectorAll('.district').forEach(function(g){ g.addEventListener('click',function(){ select(g.getAttribute('data-id')); }); });
   chips.forEach(function(c){ c.addEventListener('click',function(){ select(c.getAttribute('data-id')); }); });
