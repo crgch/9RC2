@@ -263,21 +263,55 @@ a{color:inherit}
   .cmp-row .cell.m{border-right:none;border-bottom:1px dashed var(--panel-edge)}
 }
 
-/* ---------- nav rail ---------- */
-#nav{position:fixed;bottom:0;left:0;right:0;z-index:45;
-  display:flex;justify-content:center;padding:0 14px 18px}
-#nav .rail{display:flex;flex-wrap:wrap;justify-content:center;gap:2px;padding:5px;
-  border:1px solid var(--panel-edge);background:rgba(8,11,18,.9);
-  backdrop-filter:blur(8px)}
-.navbtn{display:flex;flex-direction:column;align-items:flex-start;gap:2px;
-  padding:9px 16px;cursor:pointer;border:1px solid transparent;background:none;
-  font-family:inherit;color:var(--muted);transition:.2s;min-width:74px}
+/* ---------- nav widget menu ---------- */
+#nav{
+  position:fixed;left:50%;bottom:14px;z-index:45;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  padding:0;pointer-events:none;
+}
+#nav .menutoggle{
+  pointer-events:auto;cursor:pointer;min-width:116px;height:40px;
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  border:1px solid rgba(var(--acc-rgb),.55);
+  background:linear-gradient(180deg,rgba(8,11,18,.94),rgba(8,11,18,.78));
+  color:var(--white);font-family:"Chakra Petch",monospace;font-size:12px;
+  letter-spacing:.24em;text-transform:uppercase;
+  box-shadow:0 0 18px rgba(var(--acc-rgb),.12), inset 0 0 18px rgba(var(--acc-rgb),.045);
+  backdrop-filter:blur(8px);
+}
+#nav .menutoggle .mark{color:var(--acc);font-size:14px;line-height:1}
+#nav .menutoggle .x{font-family:"Space Mono",monospace;color:var(--faint);font-size:10px;letter-spacing:.08em}
+#nav .rail{
+  position:absolute;bottom:48px;left:50%;transform:translate(-50%,10px) scale(.96);
+  width:min(420px,calc(100vw - 28px));display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:6px;padding:8px;border:1px solid var(--panel-edge);
+  background:linear-gradient(180deg,rgba(8,11,18,.96),rgba(8,11,18,.88));
+  backdrop-filter:blur(10px);box-shadow:0 12px 32px rgba(0,0,0,.45);
+  opacity:0;visibility:hidden;pointer-events:none;transition:opacity .18s ease,transform .18s ease,visibility .18s;
+}
+#nav.open .rail{opacity:1;visibility:visible;pointer-events:auto;transform:translate(-50%,0) scale(1)}
+#nav .rail::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(90deg,rgba(var(--acc-rgb),.08),transparent 32%,rgba(255,47,191,.055));
+  mix-blend-mode:screen;
+}
+.navbtn{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;
+  padding:10px 13px;cursor:pointer;border:1px solid rgba(255,255,255,.045);
+  background:rgba(255,255,255,.025);font-family:inherit;color:var(--muted);
+  transition:.18s;min-width:0;text-align:left}
 .navbtn .c{font-family:"Space Mono",monospace;font-size:10px;letter-spacing:.1em;color:var(--faint)}
 .navbtn .n{font-size:13px;font-weight:500;letter-spacing:.02em}
-.navbtn:hover{color:var(--text);background:rgba(255,255,255,.03)}
-.navbtn.on{border-color:var(--acc);background:rgba(var(--acc-rgb),.08)}
+.navbtn:hover{color:var(--text);background:rgba(255,255,255,.055)}
+.navbtn.on{border-color:var(--acc);background:rgba(var(--acc-rgb),.10)}
 .navbtn.on .c{color:var(--acc)}.navbtn.on .n{color:var(--white)}
-@media(max-width:560px){.navbtn{min-width:0;padding:8px 11px}.navbtn .n{font-size:12px}}
+@media(min-width:780px){
+  #nav{bottom:18px}
+  #nav .rail{grid-template-columns:repeat(3,minmax(0,1fr));width:min(560px,calc(100vw - 40px))}
+}
+@media(max-width:420px){
+  #nav .rail{grid-template-columns:1fr;width:calc(100vw - 28px)}
+  #nav .menutoggle{min-width:108px;height:38px}
+}
 
 /* ---------- sector transition overlay : neon glitch gate ---------- */
 #wipe{
@@ -474,10 +508,10 @@ a{color:inherit}
     max-width:none;
     height:360px;
     margin:14px auto 0;
-    overflow-x:auto;
-    overflow-y:hidden;
+    overflow:auto;
     -webkit-overflow-scrolling:touch;
-    overscroll-behavior-x:contain;
+    overscroll-behavior:contain;
+    touch-action:pan-x pan-y;
   }
 
   .scanner svg{
@@ -485,7 +519,11 @@ a{color:inherit}
     max-width:none;
     height:auto;
     display:block;
+    transform-origin:0 0;
   }
+
+  .scanner::-webkit-scrollbar{width:5px;height:5px}
+  .scanner::-webkit-scrollbar-thumb{background:rgba(255,47,191,.28);border-radius:0}
 
 
   .scan-status{
@@ -523,6 +561,21 @@ a{color:inherit}
   }
 }
 
+
+
+.kmap-ctrl{
+  position:absolute;right:10px;bottom:10px;z-index:6;display:flex;gap:4px;
+  background:rgba(4,6,11,.62);border:1px solid rgba(255,154,46,.24);
+  padding:4px;backdrop-filter:blur(6px)
+}
+.kmap-ctrl button{
+  width:31px;height:27px;border:1px solid rgba(255,154,46,.28);
+  background:rgba(255,154,46,.055);color:var(--amber);
+  font-family:"Chakra Petch",monospace;font-size:11px;letter-spacing:.08em;
+  cursor:pointer
+}
+.kmap-ctrl button:hover{background:rgba(255,154,46,.13);color:#fff}
+@media(min-width:681px){.kmap-ctrl{display:none}}
 
 /* ===== LOCAL BGM AUTOPLAY ===== */
 #bgm-audio{display:none}
@@ -651,17 +704,34 @@ a{color:inherit}
 </section>
 
 
+
+<!-- ============ CHARACTER PROFILES ============ -->
+<section class="view doc" id="view-characters">
+  <div class="wrap">
+    <div class="title-blk reveal">
+      <div class="sec-mark"><span class="code">SEC-CH</span><span class="ko">Character Database · 준비중</span></div>
+      <h2>캐릭터 프로필</h2>
+      <p class="lede">성채 거주자와 세력 인물을 카드형으로 정리할 공간. 이미지·소속·능력·거점·관계도를 추가할 수 있다.</p>
+    </div>
+    <div class="notice reveal"><span class="bang">▣ DB LOCK</span><span>프로필 데이터 입력 대기중. 메뉴 구조만 먼저 열어두었다.</span></div>
+  </div>
+</section>
+
 <!-- LOCAL BGM AUTOPLAY -->
 <audio id="bgm-audio" src="./bgm.mp3" autoplay loop preload="auto" playsinline></audio>
 <!-- END LOCAL BGM AUTOPLAY -->
 
 <!-- NAV -->
-<nav id="nav"><div class="rail">
-  <button class="navbtn on" data-target="map"><span class="c">SEC-00</span><span class="n">지도</span></button>
-  <button class="navbtn" data-target="megacity"><span class="c">SEC-01</span><span class="n">메가시티</span></button>
-  <button class="navbtn" data-target="kowloon"><span class="c">SEC-02</span><span class="n">구룡섹터</span></button>
-  <button class="navbtn" data-target="kmap"><span class="c">SEC-2K</span><span class="n">성채도</span></button>
-</div></nav>
+<nav id="nav">
+  <button class="menutoggle" id="menu-toggle" type="button"><span class="mark">▦</span><span>MENU</span><span class="x">OPEN</span></button>
+  <div class="rail">
+    <button class="navbtn on" data-target="map"><span class="c">SEC-00</span><span class="n">지도</span></button>
+    <button class="navbtn" data-target="megacity"><span class="c">SEC-01</span><span class="n">메가시티</span></button>
+    <button class="navbtn" data-target="kowloon"><span class="c">SEC-02</span><span class="n">구룡섹터</span></button>
+    <button class="navbtn" data-target="kmap"><span class="c">SEC-2K</span><span class="n">성채도</span></button>
+    <button class="navbtn" data-target="characters"><span class="c">SEC-CH</span><span class="n">캐릭터</span></button>
+  </div>
+</nav>
 
 <!-- TRANSITION -->
 <div id="wipe"><div class="nz"></div><div class="grid"></div><div class="scan"></div><div class="tear t1"></div><div class="tear t2"></div><div class="tear t3"></div><div class="block b1"></div><div class="block b2"></div><div class="code"></div></div>
@@ -673,6 +743,7 @@ const SECTORS = {
   megacity: {accent:'cyan',  coord:'LAT 31.2°N · 통제구역', name:'메가시티',  view:'view-megacity'},
   kowloon:  {accent:'amber', coord:'LAT ??.?° · 신호손실',  name:'구룡섹터',  view:'view-kowloon'},
   kmap:     {accent:'amber', coord:'城砦 內部 · 측량도',     name:'성채도',    view:'view-kmap'},
+  characters:{accent:'pink',  coord:'CHAR DB · PROFILE',      name:'캐릭터',    view:'view-characters'},
 };
 const PAL = {
   cyan:  {acc:'#5ee6ff', dim:'#2f7d92', rgb:'94,230,255'},
@@ -712,7 +783,30 @@ function go(target){
   },200);
   setTimeout(()=>{wipe.classList.remove('on'); busy=false;},560);
 }
-document.querySelectorAll('.navbtn').forEach(b=>b.addEventListener('click',()=>go(b.dataset.target)));
+const navEl=document.getElementById('nav');
+const menuToggle=document.getElementById('menu-toggle');
+if(menuToggle){
+  menuToggle.addEventListener('click',()=>{
+    navEl.classList.toggle('open');
+    const x=menuToggle.querySelector('.x');
+    if(x) x.textContent=navEl.classList.contains('open')?'CLOSE':'OPEN';
+  });
+}
+document.querySelectorAll('.navbtn').forEach(b=>b.addEventListener('click',()=>{
+  go(b.dataset.target);
+  if(navEl){
+    navEl.classList.remove('open');
+    const x=navEl.querySelector('.menutoggle .x');
+    if(x) x.textContent='OPEN';
+  }
+}));
+document.addEventListener('pointerdown',(e)=>{
+  if(navEl && navEl.classList.contains('open') && !navEl.contains(e.target)){
+    navEl.classList.remove('open');
+    const x=navEl.querySelector('.menutoggle .x');
+    if(x) x.textContent='OPEN';
+  }
+},{passive:true});
 document.querySelectorAll('.hotspot[data-go]').forEach(h=>h.addEventListener('click',()=>go(h.dataset.go)));
 
 function runReveal(scope){
@@ -1162,12 +1256,41 @@ try{ initGlobe(); }catch(err){ console.error('globe',err);
   function arch(group){ document.querySelectorAll('.bgcard').forEach(function(c){ c.style.display=(c.getAttribute('data-arch')===group)?'':'none'; }); }
   function head(t){ var h=document.getElementById('arch-head'); if(h)h.textContent=t; }
 
+  var scroller=document.querySelector('#view-kmap .scanner');
+  var kmapZoom=1;
+  var lastSelected='common';
+  function isMobileMap(){ return window.matchMedia && window.matchMedia('(max-width:680px)').matches; }
+  function baseMapWidth(){ return isMobileMap()?820:(scroller?scroller.clientWidth:820); }
+  function setMapZoom(z,keep){
+    if(!scroller || !svg) return;
+    var oldW=svg.getBoundingClientRect().width || baseMapWidth();
+    var ratioX=(scroller.scrollLeft+scroller.clientWidth/2)/Math.max(1,oldW);
+    var ratioY=(scroller.scrollTop+scroller.clientHeight/2)/Math.max(1,svg.getBoundingClientRect().height||1);
+    kmapZoom=Math.max(.56,Math.min(1.55,z));
+    svg.style.width=Math.round(baseMapWidth()*kmapZoom)+'px';
+    svg.style.height='auto';
+    requestAnimationFrame(function(){
+      if(keep){
+        var nw=svg.getBoundingClientRect().width, nh=svg.getBoundingClientRect().height;
+        scroller.scrollLeft=Math.max(0,ratioX*nw-scroller.clientWidth/2);
+        scroller.scrollTop=Math.max(0,ratioY*nh-scroller.clientHeight/2);
+      }else{
+        centerMapOn(lastSelected);
+      }
+    });
+  }
+
   function centerMapOn(id){
-    var sc=document.querySelector('#view-kmap .scanner');
+    var sc=scroller;
     if(!sc || !svg) return;
+    lastSelected=id;
 
     if(id==='common'){
-      sc.scrollTo({left:Math.max(0,(sc.scrollWidth-sc.clientWidth)/2),top:0,behavior:'smooth'});
+      sc.scrollTo({
+        left:Math.max(0,(sc.scrollWidth-sc.clientWidth)/2),
+        top:Math.max(0,(sc.scrollHeight-sc.clientHeight)/2),
+        behavior:'smooth'
+      });
       return;
     }
 
@@ -1177,15 +1300,32 @@ try{ initGlobe(); }catch(err){ console.error('globe',err);
     var box=g.getBBox();
     var vb=svg.viewBox.baseVal;
     var rendered=svg.getBoundingClientRect();
-    var scale=rendered.width/vb.width;
-    var centerX=(box.x+box.width/2-vb.x)*scale;
-    var target=centerX-sc.clientWidth/2;
-    var max=sc.scrollWidth-sc.clientWidth;
-    target=Math.max(0,Math.min(max,target));
+    var scaleX=rendered.width/vb.width;
+    var scaleY=rendered.height/vb.height;
 
-    // 낮은 모바일 스캐너에서도 상단 구역명/번호가 잘리지 않도록 위쪽 기준으로 복귀
-    sc.scrollTo({left:target,top:0,behavior:'smooth'});
+    var centerX=(box.x+box.width/2-vb.x)*scaleX;
+    var topY=(box.y-vb.y)*scaleY;
+    var centerY=(box.y+box.height/2-vb.y)*scaleY;
+
+    var targetX=centerX-sc.clientWidth/2;
+    var targetY=Math.min(centerY-sc.clientHeight/2, topY-24);
+
+    targetX=Math.max(0,Math.min(sc.scrollWidth-sc.clientWidth,targetX));
+    targetY=Math.max(0,Math.min(sc.scrollHeight-sc.clientHeight,targetY));
+
+    sc.scrollTo({left:targetX,top:targetY,behavior:'smooth'});
   }
+
+  document.querySelectorAll('.kmap-ctrl button').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var z=btn.getAttribute('data-zoom');
+      if(z==='in') setMapZoom(kmapZoom+.14,true);
+      else if(z==='out') setMapZoom(kmapZoom-.14,true);
+      else { setMapZoom(.62,false); lastSelected='common'; centerMapOn('common'); }
+    });
+  });
+
+  window.addEventListener('resize',function(){ setMapZoom(kmapZoom,true); });
 
   function centerChip(c){
     if(!c || !c.scrollIntoView) return;
