@@ -56,15 +56,29 @@ a{color:inherit}
 
 /* ---------- status bar ---------- */
 #hud{
-  position:fixed;top:0;left:0;right:0;z-index:40;
-  display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding:11px clamp(14px,3vw,30px);
+  position:fixed;top:0;left:0;right:0;z-index:40;overflow:hidden;isolation:isolate;
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+  padding:11px clamp(14px,3vw,30px) 18px;
   font-family:"Chakra Petch",monospace;font-size:11px;letter-spacing:.14em;
   text-transform:uppercase;color:var(--muted);
   border-bottom:1px solid var(--panel-edge);
-  background:linear-gradient(180deg,rgba(6,8,13,.92),rgba(6,8,13,.35));
+  background:linear-gradient(180deg,rgba(10,3,15,.96),rgba(6,8,13,.54));
   backdrop-filter:blur(3px);
 }
+#hud::before{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:1px;z-index:1;
+  background:linear-gradient(90deg,transparent,rgba(255,47,191,.78),rgba(77,243,255,.38),transparent);
+}
+#hud .hud-audio-bg{
+  position:absolute;left:0;right:0;bottom:0;height:30px;z-index:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,47,191,0),rgba(255,47,191,.13));
+  opacity:.95;mix-blend-mode:screen;
+}
+#hud .hud-audio-bg canvas{display:block;width:100%;height:100%;opacity:.98}
+#hud.is-playing{animation:hudPinkPulse 2.6s ease-in-out infinite}
+#hud.is-playing .sysid b{color:#ffe8fb;text-shadow:0 0 7px rgba(255,47,191,.72),0 0 16px rgba(77,243,255,.22)}
+@keyframes hudPinkPulse{0%,100%{box-shadow:0 0 0 rgba(255,47,191,0),inset 0 -1px 0 rgba(255,47,191,.18)}50%{box-shadow:0 0 24px rgba(255,47,191,.18),inset 0 -1px 0 rgba(255,47,191,.46)}}
+#hud .sysid,#hud .right{position:relative;z-index:2}
 #hud .sysid{color:var(--acc);display:flex;align-items:center;gap:9px;min-width:0}
 #hud .sysid b{font-weight:700;letter-spacing:.08em}
 #hud .han{font-family:"Space Mono",monospace;color:var(--faint);letter-spacing:.05em}
@@ -74,7 +88,11 @@ a{color:inherit}
 .rec .dot{width:7px;height:7px;border-radius:50%;background:var(--danger);
   box-shadow:0 0 8px var(--danger);animation:blink 1.4s steps(1) infinite}
 @keyframes blink{50%{opacity:.15}}
-@media(max-width:680px){#hud .sysid .han,#hud .coord{display:none}}
+@media(max-width:680px){
+  #hud{padding-bottom:16px}
+  #hud .hud-audio-bg{height:24px}
+  #hud .sysid .han,#hud .coord{display:none}
+}
 
 /* ---------- views ---------- */
 .view{position:fixed;inset:0;z-index:10;opacity:0;visibility:hidden;
@@ -231,20 +249,69 @@ a{color:inherit}
 .navbtn.on .c{color:var(--acc)}.navbtn.on .n{color:var(--white)}
 @media(max-width:560px){.navbtn{min-width:0;padding:8px 11px}.navbtn .n{font-size:12px}}
 
-/* ---------- sector transition overlay ---------- */
-#wipe{position:fixed;inset:0;z-index:80;pointer-events:none;opacity:0;background:#04060b;
-  transition:opacity .1s linear;overflow:hidden}
+/* ---------- sector transition overlay : neon glitch gate ---------- */
+#wipe{
+  --glitch-pink:#ff2fbf;
+  --glitch-hot:#ff5bd8;
+  --glitch-blue:#4df3ff;
+  position:fixed;inset:0;z-index:80;pointer-events:none;opacity:0;
+  background:#02030a;transition:opacity .08s linear;overflow:hidden;isolation:isolate;
+}
 #wipe.on{opacity:1}
-#wipe .nz{position:absolute;inset:-25%;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size:230px 230px;opacity:.55;mix-blend-mode:screen;animation:nzmove .12s steps(4) infinite}
-@keyframes nzmove{0%{transform:translate(0,0)}25%{transform:translate(-14px,9px)}50%{transform:translate(11px,-12px)}75%{transform:translate(-7px,-8px)}100%{transform:translate(13px,11px)}}
-#wipe .tear{position:absolute;left:-10%;right:-10%;height:3px;opacity:.9;mix-blend-mode:screen;filter:blur(.3px)}
-#wipe .tear.t1{top:37%;background:var(--cyan);animation:tear1 .22s linear infinite}
-#wipe .tear.t2{top:62%;background:var(--danger);animation:tear2 .28s linear infinite}
-@keyframes tear1{0%{transform:translateX(-26%)}100%{transform:translateX(26%)}}
-@keyframes tear2{0%{transform:translateX(22%)}100%{transform:translateX(-22%)}}
-@media(prefers-reduced-motion:reduce){#wipe .nz,#wipe .tear{animation:none}}
+#wipe::before{
+  content:"";position:absolute;inset:-8%;z-index:0;opacity:.72;
+  background:
+    radial-gradient(circle at 26% 34%,rgba(255,47,191,.22),transparent 28%),
+    radial-gradient(circle at 72% 60%,rgba(77,243,255,.16),transparent 32%),
+    linear-gradient(90deg,rgba(255,47,191,.08),rgba(77,243,255,.06),rgba(255,47,191,.08));
+  filter:blur(10px);transform:skewX(-7deg);animation:glowDrag .46s steps(5) infinite;
+}
+#wipe::after{
+  content:"";position:absolute;inset:0;z-index:4;opacity:.72;mix-blend-mode:screen;
+  background:
+    repeating-linear-gradient(0deg,rgba(255,255,255,.12) 0 1px,transparent 1px 4px),
+    repeating-linear-gradient(90deg,rgba(255,47,191,.06) 0 1px,transparent 1px 16px);
+  animation:crtRoll .18s linear infinite;
+}
+#wipe .nz{position:absolute;inset:-30%;z-index:1;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.15' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:190px 190px;opacity:.48;mix-blend-mode:screen;animation:nzmove .09s steps(2) infinite}
+#wipe .grid{position:absolute;inset:0;z-index:1;opacity:.58;mix-blend-mode:screen;
+  background:
+    linear-gradient(rgba(255,47,191,.12) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(77,243,255,.10) 1px,transparent 1px);
+  background-size:34px 34px;transform:perspective(500px) rotateX(58deg) scale(1.7) translateY(-13%);
+  transform-origin:center bottom;animation:gridKick .42s steps(4) infinite}
+#wipe .scan{position:absolute;left:-12%;right:-12%;top:-20%;height:34%;z-index:5;opacity:.9;mix-blend-mode:screen;
+  background:linear-gradient(180deg,transparent,rgba(255,47,191,.10) 42%,rgba(77,243,255,.24) 74%,transparent);
+  border-bottom:1px solid rgba(77,243,255,.72);box-shadow:0 0 34px rgba(255,47,191,.28);
+  animation:scanSlash .52s cubic-bezier(.2,.8,.1,1) infinite}
+#wipe .tear{position:absolute;left:-18%;right:-18%;height:2px;z-index:6;opacity:.95;mix-blend-mode:screen;filter:drop-shadow(0 0 8px currentColor)}
+#wipe .tear.t1{top:27%;color:var(--glitch-blue);background:currentColor;animation:tear1 .16s steps(2) infinite}
+#wipe .tear.t2{top:51%;height:3px;color:var(--glitch-pink);background:currentColor;animation:tear2 .21s steps(2) infinite}
+#wipe .tear.t3{top:73%;color:#fff;background:linear-gradient(90deg,transparent,var(--glitch-hot),transparent);animation:tear3 .13s steps(2) infinite}
+#wipe .block{position:absolute;z-index:7;left:0;right:0;height:44px;opacity:.84;mix-blend-mode:screen;
+  background:linear-gradient(90deg,transparent 0 8%,rgba(255,47,191,.52) 8% 24%,transparent 24% 32%,rgba(77,243,255,.38) 32% 48%,transparent 48% 100%);
+  filter:blur(.2px);animation:blockCut .33s steps(3) infinite}
+#wipe .block.b1{top:18%;animation-delay:-.08s}
+#wipe .block.b2{top:64%;height:32px;animation-delay:-.19s}
+#wipe .code{position:absolute;inset:0;z-index:8;display:grid;place-items:center;pointer-events:none;
+  font-family:"Space Mono",monospace;font-size:clamp(11px,2.7vw,23px);letter-spacing:.38em;color:rgba(255,230,250,.82);
+  text-shadow:-2px 0 var(--glitch-pink),2px 0 var(--glitch-blue),0 0 22px rgba(255,47,191,.55);
+  animation:codeJitter .18s steps(2) infinite}
+#wipe .code::before{content:"SIGNAL RE-ROUTE // 九龍_SECTOR_HANDOFF"}
+@keyframes glowDrag{0%{transform:translate(-2%,0) skewX(-7deg)}50%{transform:translate(3%,-1%) skewX(5deg)}100%{transform:translate(-1%,2%) skewX(-9deg)}}
+@keyframes nzmove{0%{transform:translate(0,0)}25%{transform:translate(-22px,13px)}50%{transform:translate(18px,-17px)}75%{transform:translate(-10px,-11px)}100%{transform:translate(20px,16px)}}
+@keyframes crtRoll{0%{transform:translateY(-3px)}100%{transform:translateY(3px)}}
+@keyframes gridKick{0%{opacity:.28;filter:hue-rotate(0)}50%{opacity:.7;filter:hue-rotate(22deg)}100%{opacity:.38;filter:hue-rotate(-16deg)}}
+@keyframes scanSlash{0%{top:-28%;transform:translateX(-8%) skewY(-3deg)}100%{top:102%;transform:translateX(8%) skewY(3deg)}}
+@keyframes tear1{0%{transform:translateX(-24%) scaleX(.8)}50%{transform:translateX(18%) scaleX(1.16)}100%{transform:translateX(38%) scaleX(.7)}}
+@keyframes tear2{0%{transform:translateX(28%) scaleX(1.2)}50%{transform:translateX(-12%) scaleX(.72)}100%{transform:translateX(-36%) scaleX(1.05)}}
+@keyframes tear3{0%{transform:translateX(-12%)}100%{transform:translateX(18%)}}
+@keyframes blockCut{0%{transform:translateX(-22%) skewX(-18deg);clip-path:inset(0 50% 0 0)}50%{transform:translateX(16%) skewX(13deg);clip-path:inset(0 10% 0 28%)}100%{transform:translateX(34%) skewX(-8deg);clip-path:inset(0 0 0 54%)}}
+@keyframes codeJitter{0%{transform:translate(0,0);opacity:.74}40%{transform:translate(-7px,2px);opacity:1}70%{transform:translate(5px,-2px);opacity:.62}100%{transform:translate(0,1px);opacity:.9}}
+@media(prefers-reduced-motion:reduce){#wipe *,#wipe::before,#wipe::after{animation:none!important}}
+
 
 .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
 .reveal.in{opacity:1;transform:none}
@@ -436,6 +503,7 @@ a{color:inherit}
 
 <!-- STATUS BAR -->
 <div id="hud">
+  <div class="hud-audio-bg" aria-hidden="true"><canvas id="hud-audio-canvas"></canvas></div>
   <div class="sysid"><b>九龍-OUTER-RIM</b><span class="han">// 외곽 측량 단말 v2.7</span></div>
   <div class="right">
     <span class="coord" id="coord">LAT —— · LON ——</span>
@@ -564,7 +632,7 @@ a{color:inherit}
 </div></nav>
 
 <!-- TRANSITION -->
-<div id="wipe"><div class="nz"></div><div class="tear t1"></div><div class="tear t2"></div></div>
+<div id="wipe"><div class="nz"></div><div class="grid"></div><div class="scan"></div><div class="tear t1"></div><div class="tear t2"></div><div class="tear t3"></div><div class="block b1"></div><div class="block b2"></div><div class="code"></div></div>
 
 <script>
 /* ===================== SECTOR ROUTING ===================== */
@@ -1145,6 +1213,136 @@ try{ initGlobe(); }catch(err){ console.error('globe',err);
 
   document.addEventListener('visibilitychange',function(){
     if(!document.hidden) tryPlay();
+  });
+})();
+</script>
+
+
+<script id="header-audio-visualizer-script">
+(function(){
+  var audio=document.getElementById('bgm-audio');
+  var canvas=document.getElementById('hud-audio-canvas');
+  var hud=document.getElementById('hud');
+  if(!audio || !canvas) return;
+
+  var AC=window.AudioContext||window.webkitAudioContext;
+  var ctx=canvas.getContext('2d');
+  var audioCtx=null, analyser=null, source=null, freqData=null, waveData=null;
+  var connected=false, raf=0;
+
+  function resize(){
+    var rect=canvas.getBoundingClientRect();
+    var dpr=Math.max(1,window.devicePixelRatio||1);
+    canvas.width=Math.max(1,Math.round(rect.width*dpr));
+    canvas.height=Math.max(1,Math.round(rect.height*dpr));
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+
+  function connect(){
+    if(connected || !AC) return;
+    audioCtx=new AC();
+    analyser=audioCtx.createAnalyser();
+    analyser.fftSize=256;
+    analyser.smoothingTimeConstant=.84;
+    source=audioCtx.createMediaElementSource(audio);
+    source.connect(analyser);
+    analyser.connect(audioCtx.destination);
+    freqData=new Uint8Array(analyser.frequencyBinCount);
+    waveData=new Uint8Array(analyser.fftSize);
+    connected=true;
+    resize();
+    draw();
+  }
+
+  function wake(){
+    if(!AC) return;
+    connect();
+    if(audioCtx && audioCtx.state==='suspended'){
+      audioCtx.resume().catch(function(){});
+    }
+  }
+
+  function drawIdle(w,h){
+    ctx.clearRect(0,0,w,h);
+    ctx.strokeStyle='rgba(255,47,191,.44)';
+    ctx.lineWidth=1;
+    ctx.beginPath();
+    ctx.moveTo(0,h*.72);
+    ctx.lineTo(w,h*.72);
+    ctx.stroke();
+
+    ctx.fillStyle='rgba(255,47,191,.30)';
+    for(var x=0;x<w;x+=18){
+      ctx.fillRect(x,h*.72-2,8,4);
+    }
+  }
+
+  function draw(){
+    raf=requestAnimationFrame(draw);
+    var w=canvas.clientWidth||canvas.width;
+    var h=canvas.clientHeight||canvas.height;
+    if(!connected || !analyser){
+      drawIdle(w,h);
+      return;
+    }
+
+    analyser.getByteFrequencyData(freqData);
+    analyser.getByteTimeDomainData(waveData);
+    ctx.clearRect(0,0,w,h);
+
+    var baseline=h*.76;
+    ctx.strokeStyle='rgba(255,47,191,.30)';
+    ctx.lineWidth=1;
+    ctx.beginPath();
+    ctx.moveTo(0,baseline);
+    ctx.lineTo(w,baseline);
+    ctx.stroke();
+
+    var bars=28;
+    var gap=4;
+    var barW=Math.max(3,(w-(bars-1)*gap)/bars);
+    var usable=w-bars*barW-(bars-1)*gap;
+    var startX=Math.max(0,usable/2);
+
+    for(var i=0;i<bars;i++){
+      var idx=Math.min(freqData.length-1,Math.floor(i*freqData.length/bars));
+      var v=freqData[idx]/255;
+      var barH=Math.max(2,v*(h*.78));
+      var x=startX+i*(barW+gap);
+      var y=baseline-barH;
+      ctx.fillStyle='rgba(255,47,191,'+(0.18+v*0.86)+')';
+      ctx.fillRect(x,y,barW,barH);
+      if(v>.18){
+        ctx.fillStyle='rgba(255,225,250,'+(0.14+v*0.50)+')';
+        ctx.fillRect(x,y-2,barW,2);
+      }
+    }
+
+    ctx.beginPath();
+    for(var j=0;j<waveData.length;j++){
+      var px=(j/(waveData.length-1))*w;
+      var py=h*.18 + (waveData[j]/255)*(h*.26);
+      if(j===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+    }
+    ctx.strokeStyle='rgba(77,243,255,.88)';
+    ctx.lineWidth=1.2;
+    ctx.shadowColor='rgba(255,47,191,.38)';
+    ctx.shadowBlur=6;
+    ctx.stroke();
+    ctx.shadowBlur=0;
+  }
+
+  resize();
+  drawIdle(canvas.clientWidth||window.innerWidth,canvas.clientHeight||24);
+  window.addEventListener('resize',resize);
+  function markPlaying(){ if(hud) hud.classList.add('is-playing'); }
+  function markStopped(){ if(hud) hud.classList.remove('is-playing'); }
+  audio.addEventListener('play',function(){ markPlaying(); wake(); });
+  audio.addEventListener('playing',function(){ markPlaying(); wake(); });
+  audio.addEventListener('pause',markStopped);
+  audio.addEventListener('ended',markStopped);
+  ['pointerdown','touchstart','click','keydown'].forEach(function(ev){
+    document.addEventListener(ev,wake,{passive:true});
   });
 })();
 </script>
