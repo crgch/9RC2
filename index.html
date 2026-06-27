@@ -265,44 +265,36 @@ a{color:inherit}
 
 /* ---------- nav widget menu ---------- */
 #nav{
-  position:fixed;right:16px;bottom:16px;z-index:45;
+  position:fixed;right:16px;bottom:16px;z-index:90;
   display:flex;flex-direction:column;align-items:flex-end;gap:8px;
-  padding:0;pointer-events:none;
+  padding:0;pointer-events:auto;
 }
 #nav .menutoggle{
-  pointer-events:auto;cursor:pointer;width:64px;height:64px;border-radius:50%;padding:0;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
-  border:1px solid rgba(var(--acc-rgb),.58);
+  pointer-events:auto;cursor:pointer;width:62px;height:62px;border-radius:50%;padding:0;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(var(--acc-rgb),.62);
   background:
-    radial-gradient(circle at 36% 28%,rgba(255,255,255,.16),transparent 22%),
-    radial-gradient(circle at 50% 55%,rgba(var(--acc-rgb),.16),rgba(8,11,18,.96) 62%);
-  color:var(--white);box-shadow:0 0 22px rgba(var(--acc-rgb),.18), inset 0 0 24px rgba(var(--acc-rgb),.08);
+    radial-gradient(circle at 34% 24%,rgba(255,255,255,.14),transparent 22%),
+    radial-gradient(circle at 52% 58%,rgba(var(--acc-rgb),.16),rgba(8,11,18,.98) 64%);
+  color:var(--white);box-shadow:0 0 22px rgba(var(--acc-rgb),.20), inset 0 0 24px rgba(var(--acc-rgb),.08);
   backdrop-filter:blur(9px);transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;
 }
 #nav .menutoggle:hover,#nav.open .menutoggle{
-  transform:translateY(-2px);border-color:rgba(255,47,191,.72);
-  box-shadow:0 0 28px rgba(255,47,191,.22), inset 0 0 28px rgba(77,243,255,.06);
+  transform:translateY(-2px);border-color:rgba(255,47,191,.75);
+  box-shadow:0 0 30px rgba(255,47,191,.25), inset 0 0 28px rgba(77,243,255,.07);
 }
-#nav .globe-icon{
-  position:relative;width:24px;height:24px;border-radius:50%;display:block;
-  border:1.5px solid rgba(255,47,191,.88);
-  box-shadow:0 0 10px rgba(255,47,191,.36), inset 0 0 9px rgba(77,243,255,.18);
+#nav .menu-label{
+  font-family:"Chakra Petch",monospace;font-size:11px;font-weight:700;
+  letter-spacing:.16em;color:#f4f7ff;text-shadow:0 0 8px rgba(255,47,191,.55),0 0 14px rgba(77,243,255,.22);
+  transform:translateX(.08em);
 }
-#nav .globe-icon::before{
-  content:"";position:absolute;top:3px;bottom:3px;left:50%;width:42%;transform:translateX(-50%);
-  border-left:1px solid rgba(77,243,255,.72);border-right:1px solid rgba(77,243,255,.72);border-radius:50%;
-}
-#nav .globe-icon::after{
-  content:"";position:absolute;left:3px;right:3px;top:50%;height:1px;background:rgba(77,243,255,.72);
-  box-shadow:0 -7px 0 rgba(255,47,191,.28),0 7px 0 rgba(255,47,191,.28);
-}
-#nav .menu-mini{font-family:"Chakra Petch",monospace;font-size:9px;letter-spacing:.16em;color:#dfe7f8;opacity:.9;line-height:1}
 #nav .rail{
-  position:absolute;right:0;bottom:64px;transform:translateY(10px) scale(.96);
+  position:absolute;right:0;bottom:72px;transform:translateY(10px) scale(.96);
   width:min(210px,calc(100vw - 32px));display:grid;grid-template-columns:1fr;
   gap:5px;padding:7px;border:1px solid var(--panel-edge);
-  background:linear-gradient(180deg,rgba(8,11,18,.96),rgba(8,11,18,.88));
-  backdrop-filter:blur(10px);box-shadow:0 12px 32px rgba(0,0,0,.45);
+  background:linear-gradient(180deg,rgba(8,11,18,.97),rgba(8,11,18,.90));
+  backdrop-filter:blur(10px);box-shadow:0 12px 32px rgba(0,0,0,.48);
   opacity:0;visibility:hidden;pointer-events:none;transition:opacity .18s ease,transform .18s ease,visibility .18s;
 }
 #nav.open .rail{opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0) scale(1)}
@@ -314,7 +306,7 @@ a{color:inherit}
 .navbtn{position:relative;display:flex;align-items:center;justify-content:space-between;gap:10px;
   padding:10px 12px;cursor:pointer;border:1px solid rgba(255,255,255,.045);
   background:rgba(255,255,255,.025);font-family:inherit;color:var(--muted);
-  transition:.18s;min-width:0;text-align:left}
+  transition:.18s;min-width:0;text-align:left;touch-action:manipulation}
 .navbtn .c{font-family:"Space Mono",monospace;font-size:10px;letter-spacing:.1em;color:var(--faint);order:2}
 .navbtn .n{font-size:13px;font-weight:500;letter-spacing:.02em;order:1}
 .navbtn:hover{color:var(--text);background:rgba(255,255,255,.055)}
@@ -322,9 +314,8 @@ a{color:inherit}
 .navbtn.on .c{color:var(--acc)}.navbtn.on .n{color:var(--white)}
 @media(max-width:420px){
   #nav{right:14px;bottom:14px}
-  #nav .menutoggle{width:58px;height:58px;gap:2px}
-  #nav .globe-icon{width:22px;height:22px}
-  #nav .menu-mini{font-size:8px}
+  #nav .menutoggle{width:58px;height:58px}
+  #nav .menu-label{font-size:10px}
 }
 
 /* ---------- sector transition overlay : neon glitch gate ---------- */
@@ -865,7 +856,7 @@ a{color:inherit}
 
 <!-- NAV -->
 <nav id="nav">
-  <button class="menutoggle" id="menu-toggle" type="button" aria-label="메뉴 열기"><span class="globe-icon" aria-hidden="true"></span><span class="menu-mini">MENU</span></button>
+  <button class="menutoggle" id="menu-toggle" type="button" aria-label="메뉴 열기"><span class="menu-mini">MENU</span></button>
   <div class="rail">
     <button class="navbtn on" data-target="map"><span class="c">SEC-00</span><span class="n">지도</span></button>
     <button class="navbtn" data-target="megacity"><span class="c">SEC-01</span><span class="n">메가시티</span></button>
@@ -890,13 +881,14 @@ const SECTORS = {
 const PAL = {
   cyan:  {acc:'#5ee6ff', dim:'#2f7d92', rgb:'94,230,255'},
   amber: {acc:'#ff9a2e', dim:'#7a4a1c', rgb:'255,154,46'},
+  pink:  {acc:'#ff2fbf', dim:'#7b2d63', rgb:'255,47,191'},
 };
 let current='map', busy=false;
 const root=document.documentElement, body=document.body;
 const coordEl=document.getElementById('coord');
 
 function applyPalette(accent){
-  const p=PAL[accent];
+  const p=PAL[accent] || PAL.cyan;
   root.style.setProperty('--acc',p.acc);
   root.style.setProperty('--acc-dim',p.dim);
   root.style.setProperty('--acc-rgb',p.rgb);
@@ -904,8 +896,9 @@ function applyPalette(accent){
 
 function go(target){
   if(busy||target===current) return;
-  busy=true;
   const next=SECTORS[target];
+  if(!next) return;
+  busy=true;
   const wipe=document.getElementById('wipe');
   // tint wipe in destination color
   applyPalette(next.accent);
@@ -927,25 +920,32 @@ function go(target){
 }
 const navEl=document.getElementById('nav');
 const menuToggle=document.getElementById('menu-toggle');
-if(menuToggle){
-  menuToggle.addEventListener('click',()=>{
-    const opened=navEl.classList.toggle('open');
-    menuToggle.setAttribute('aria-label',opened?'메뉴 닫기':'메뉴 열기');
-  });
+function closeMenu(){
+  if(!navEl) return;
+  navEl.classList.remove('open');
+  if(menuToggle) menuToggle.setAttribute('aria-label','메뉴 열기');
 }
-document.querySelectorAll('.navbtn').forEach(b=>b.addEventListener('click',()=>{
-  go(b.dataset.target);
-  if(navEl){
-    navEl.classList.remove('open');
-    if(menuToggle) menuToggle.setAttribute('aria-label','메뉴 열기');
-  }
-}));
+function toggleMenu(ev){
+  if(ev){ ev.preventDefault(); ev.stopPropagation(); }
+  if(!navEl) return;
+  const opened=navEl.classList.toggle('open');
+  if(menuToggle) menuToggle.setAttribute('aria-label',opened?'메뉴 닫기':'메뉴 열기');
+}
+if(menuToggle){
+  menuToggle.addEventListener('pointerdown',toggleMenu);
+  menuToggle.addEventListener('click',function(ev){ev.preventDefault(); ev.stopPropagation();});
+}
+document.querySelectorAll('.navbtn').forEach(b=>{
+  b.addEventListener('pointerdown',function(ev){ev.stopPropagation();});
+  b.addEventListener('click',()=>{
+    go(b.dataset.target);
+    closeMenu();
+  });
+});
 document.addEventListener('pointerdown',(e)=>{
-  if(navEl && navEl.classList.contains('open') && !navEl.contains(e.target)){
-    navEl.classList.remove('open');
-    if(menuToggle) menuToggle.setAttribute('aria-label','메뉴 열기');
-  }
-},{passive:true});
+  if(navEl && navEl.classList.contains('open') && !navEl.contains(e.target)) closeMenu();
+});
+document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') closeMenu(); });
 document.querySelectorAll('.hotspot[data-go]').forEach(h=>h.addEventListener('click',()=>go(h.dataset.go)));
 
 function runReveal(scope){
