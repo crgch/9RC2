@@ -353,6 +353,82 @@ a{color:inherit}
 .fhead{max-width:1100px;margin:46px auto 0;font-family:"Chakra Petch",monospace;font-size:12px;
   letter-spacing:.3em;text-transform:uppercase;color:var(--acc)}
 .fhead + .fields{margin-top:18px}
+
+
+/* ===== 모바일 성채도 확대 최적화 ===== */
+@media (max-width: 680px){
+  #view-kmap.view.doc{
+    padding-left:14px;
+    padding-right:14px;
+  }
+
+  .scanner{
+    width:calc(100vw - 28px);
+    max-width:none;
+    margin:24px auto 0;
+    overflow-x:auto;
+    overflow-y:hidden;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-x:contain;
+  }
+
+  .scanner svg{
+    width:820px;
+    max-width:none;
+    height:auto;
+  }
+
+  .scanner::after{
+    content:"좌우로 밀어 성채 내부를 스캔";
+    position:absolute;
+    right:12px;
+    bottom:10px;
+    z-index:5;
+    font-family:"Chakra Petch",monospace;
+    font-size:10px;
+    letter-spacing:.14em;
+    color:var(--amber);
+    background:rgba(4,6,11,.72);
+    border:1px solid rgba(255,154,46,.35);
+    padding:5px 8px;
+    pointer-events:none;
+  }
+
+  .scan-status{
+    font-size:9.5px;
+    letter-spacing:.12em;
+    left:12px;
+    right:12px;
+    white-space:nowrap;
+  }
+
+  .chips{
+    justify-content:flex-start;
+    overflow-x:auto;
+    flex-wrap:nowrap;
+    padding-bottom:4px;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  .chip{
+    flex:0 0 auto;
+    font-size:11px;
+    padding:7px 12px;
+  }
+
+  #kmap-info{
+    padding:18px 17px;
+  }
+
+  #kmap-info .iname{
+    font-size:22px;
+  }
+
+  #kmap-info .idesc{
+    font-size:14px;
+  }
+}
+
 </style>
 </head>
 <body data-sector="map">
@@ -450,11 +526,7 @@ a{color:inherit}
     <div class="title-blk reveal">
       <div class="sec-mark"><span class="code">SEC-2K</span><span class="ko">Walled City · Internal Scan</span></div>
       <h2>구룡성채 전체 지도</h2>
-      <p class="lede">벽은 높고, 질서는 낮다. <em>숨쉬는 자가 길을 안다.</em> 외부 출입 불가 — 성채는 안이 전부, 나가면 죽는다.</p>
-    </div>
-    <div class="kflavor reveal">
-      <span>기억하라 ▸ 길은 변한다 · 빚은 남는다 · <b>밤이 낮보다 안전하다</b></span>
-      <span>레벨 ▸ 상(옥상) · 층(일반) · 하(지상) · 지하(하수도·터널)</span>
+      <p class="lede">손끝으로 밀어 스캔하라. <em>성채는 한 화면에 잡히지 않는다.</em> 구역을 누르면 내부 거점이 열린다.</p>
     </div>
   </div>
 
