@@ -70,17 +70,21 @@ a{color:inherit}
   background:linear-gradient(90deg,transparent,rgba(255,47,191,.78),rgba(77,243,255,.38),transparent);
 }
 #hud .hud-audio-bg{
-  position:absolute;left:50%;top:50%;width:clamp(96px,28vw,330px);height:24px;z-index:1;
-  transform:translate(-50%,-50%);pointer-events:none;opacity:.96;mix-blend-mode:screen;
-  border-left:1px solid rgba(255,47,191,.18);border-right:1px solid rgba(77,243,255,.13);
-  background:linear-gradient(90deg,transparent,rgba(255,47,191,.055),rgba(77,243,255,.035),transparent);
+  position:absolute;left:50%;top:50%;width:clamp(118px,24vw,280px);height:22px;z-index:1;
+  transform:translate(-50%,-50%);pointer-events:none;opacity:.92;mix-blend-mode:screen;
+  border:1px solid rgba(255,47,191,.08);
+  border-left-color:rgba(255,47,191,.20);border-right-color:rgba(77,243,255,.12);
+  background:
+    linear-gradient(90deg,transparent,rgba(255,47,191,.045),rgba(77,243,255,.025),transparent),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 1px,transparent 1px 13px);
+  filter:drop-shadow(0 0 5px rgba(255,47,191,.16));
 }
 #hud .hud-audio-bg::before,#hud .hud-audio-bg::after{
-  content:"";position:absolute;top:50%;width:18px;height:1px;opacity:.5;
-  background:linear-gradient(90deg,transparent,rgba(255,47,191,.72));
+  content:"";position:absolute;top:50%;width:14px;height:1px;opacity:.38;
+  background:linear-gradient(90deg,transparent,rgba(255,47,191,.65));
 }
-#hud .hud-audio-bg::before{left:-20px}
-#hud .hud-audio-bg::after{right:-20px;transform:scaleX(-1)}
+#hud .hud-audio-bg::before{left:-16px}
+#hud .hud-audio-bg::after{right:-16px;transform:scaleX(-1)}
 #hud .hud-audio-bg canvas{display:block;width:100%;height:100%;opacity:.98}
 #hud .sysid,#hud .right{position:relative;z-index:2}
 #hud .sysid{color:var(--acc);display:flex;align-items:center;gap:9px;min-width:0}
@@ -479,7 +483,7 @@ a{color:inherit}
   .scanner svg{
     width:820px;
     max-width:none;
-    height:360px;
+    height:auto;
     display:block;
   }
 
@@ -1160,10 +1164,10 @@ try{ initGlobe(); }catch(err){ console.error('globe',err);
 
   function centerMapOn(id){
     var sc=document.querySelector('#view-kmap .scanner');
-    if(!sc || !svg || sc.scrollWidth<=sc.clientWidth) return;
+    if(!sc || !svg) return;
 
     if(id==='common'){
-      sc.scrollTo({left:(sc.scrollWidth-sc.clientWidth)/2,behavior:'smooth'});
+      sc.scrollTo({left:Math.max(0,(sc.scrollWidth-sc.clientWidth)/2),top:0,behavior:'smooth'});
       return;
     }
 
@@ -1178,7 +1182,9 @@ try{ initGlobe(); }catch(err){ console.error('globe',err);
     var target=centerX-sc.clientWidth/2;
     var max=sc.scrollWidth-sc.clientWidth;
     target=Math.max(0,Math.min(max,target));
-    sc.scrollTo({left:target,behavior:'smooth'});
+
+    // 낮은 모바일 스캐너에서도 상단 구역명/번호가 잘리지 않도록 위쪽 기준으로 복귀
+    sc.scrollTo({left:target,top:0,behavior:'smooth'});
   }
 
   function centerChip(c){
@@ -1288,12 +1294,41 @@ try{ initGlobe(); }catch(err){ console.error('globe',err);
   }
 
   function flatLine(w,h,alpha){
-    var y=h*.52;
+    var y=h*.54;
     ctx.strokeStyle='rgba(255,47,191,'+alpha+')';
     ctx.lineWidth=1;
     ctx.beginPath();
     ctx.moveTo(0,y);
     ctx.lineTo(w,y);
+    ctx.stroke();
+
+    ctx.fillStyle='rgba(255,47,191,'+(alpha*.34)+')';
+    for(var i=0;i<5;i++){
+      var x=w*(.18+i*.16);
+      ctx.fillRect(x,y-1,Math.max(7,w*.035),1);
+    }
+  }
+
+  function drawBrokenWave(w,h,offsetY,color,alpha,width,amp,glitch){
+    var center=h*.54+offsetY;
+    ctx.beginPath();
+    var drawing=false;
+    for(var x=0;x<=w;x+=2){
+      var pos=x/w;
+      var wi=Math.floor(pos*(waveData.length-1));
+      var wav=((waveData[wi]||128)-128)/128;
+      var focus=Math.pow(Math.sin(Math.PI*pos),1.35);
+      var gate=(Math.sin(pos*Math.PI*10+performance.now()*.004)>-.65 || glitch>.35);
+      var y=center + wav*amp*focus;
+      if(glitch>.25 && Math.random()<glitch*.028) y += (Math.random()-.5)*h*.34*glitch;
+      if(!gate){
+        drawing=false;
+        continue;
+      }
+      if(!drawing){ctx.moveTo(x,y); drawing=true;} else ctx.lineTo(x,y);
+    }
+    ctx.strokeStyle=color.replace('ALPHA',alpha);
+    ctx.lineWidth=width;
     ctx.stroke();
   }
 
@@ -1304,7 +1339,7 @@ try{ initGlobe(); }catch(err){ console.error('globe',err);
     ctx.clearRect(0,0,w,h);
 
     if(!connected || !analyser || audio.paused){
-      flatLine(w,h,.20);
+      flatLine(w,h,.13);
       return;
     }
 
@@ -1312,59 +1347,48 @@ try{ initGlobe(); }catch(err){ console.error('globe',err);
     analyser.getByteTimeDomainData(waveData);
 
     var bass=0, mid=0, hi=0, i;
-    for(i=0;i<14;i++) bass+=freqData[i]||0;
-    bass=bass/14/255;
-    for(i=14;i<44;i++) mid+=freqData[i]||0;
-    mid=mid/30/255;
-    for(i=58;i<120;i++) hi+=freqData[i]||0;
-    hi=hi/62/255;
+    for(i=0;i<12;i++) bass+=freqData[i]||0;
+    bass=bass/12/255;
+    for(i=12;i<48;i++) mid+=freqData[i]||0;
+    mid=mid/36/255;
+    for(i=62;i<150;i++) hi+=freqData[i]||0;
+    hi=hi/88/255;
 
-    bassSmooth=bassSmooth*.86 + bass*.14;
-    trebleSmooth=trebleSmooth*.90 + hi*.10;
-    var hit=Math.max(0,bass-bassSmooth*.92);
-    if(hit>.10 || bass>.46) beatEnergy=Math.min(1,beatEnergy+hit*2.6+bass*.16);
-    beatEnergy*=.84;
-    lastBass=bass;
+    bassSmooth=bassSmooth*.91 + bass*.09;
+    trebleSmooth=trebleSmooth*.92 + hi*.08;
+    var transient=Math.max(0,bass-bassSmooth*.98);
+    if(transient>.075 || bass>.52) beatEnergy=Math.min(1,beatEnergy+transient*3.8+bass*.08);
+    beatEnergy*=.80;
 
-    var signal=Math.max(0,Math.min(1,(bassSmooth+mid*.5-.13)*1.9));
-    var pulse=Math.max(signal,beatEnergy);
-    var center=h*.52;
-    var amp=1.1 + pulse*(h*.36);
+    var pulse=Math.max(0,Math.min(1,beatEnergy*1.08 + Math.max(0,mid-.20)*.42));
+    var amp=0.8 + pulse*h*.28;
 
-    flatLine(w,h,.10+.20*pulse);
+    flatLine(w,h,.08+.18*pulse);
 
-    ctx.beginPath();
-    for(var x=0;x<=w;x+=2){
-      var pos=x/w;
-      var wi=Math.floor(pos*(waveData.length-1));
-      var wav=((waveData[wi]||128)-128)/128;
-      var focus=Math.sin(Math.PI*pos); // 중앙이 제일 크게 튐
-      var jitter=(Math.sin(performance.now()*.026+x*.17)+Math.sin(performance.now()*.041+x*.063))*.22;
-      var y=center + (wav*amp*focus) + (jitter*beatEnergy*h*.10);
-      if(x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-    }
+    // 세련된 글리치형: 끊어진 얇은 파형 + 순간 색분리, 전기 스파크 느낌은 최소화
+    ctx.save();
+    ctx.shadowColor='rgba(255,47,191,'+(.10+pulse*.32)+')';
+    ctx.shadowBlur=2+pulse*7;
+    drawBrokenWave(w,h,0,'rgba(255,47,191,ALPHA)',.34+pulse*.46,1.05+pulse*.35,amp,pulse);
+    ctx.restore();
 
-    ctx.strokeStyle='rgba(255,47,191,'+(.34+pulse*.64)+')';
-    ctx.lineWidth=1.15+pulse*.75;
-    ctx.shadowColor='rgba(255,47,191,'+(.35+pulse*.55)+')';
-    ctx.shadowBlur=5+pulse*15;
-    ctx.stroke();
-
-    if(pulse>.18){
+    if(pulse>.16){
       ctx.save();
-      ctx.globalAlpha=.18+pulse*.34;
-      ctx.translate(1.2,-1.1);
-      ctx.strokeStyle='rgba(77,243,255,.85)';
-      ctx.lineWidth=.75;
-      ctx.shadowColor='rgba(77,243,255,.55)';
-      ctx.shadowBlur=4+pulse*8;
-      ctx.stroke();
+      ctx.globalAlpha=.14+pulse*.26;
+      ctx.translate((Math.random()-.5)*2.2*pulse, -1.1);
+      ctx.shadowColor='rgba(77,243,255,.25)';
+      ctx.shadowBlur=2+pulse*4;
+      drawBrokenWave(w,h,-.5,'rgba(77,243,255,ALPHA)',.42,0.72,amp*.72,pulse*.7);
       ctx.restore();
     }
 
-    if(beatEnergy>.22){
-      ctx.fillStyle='rgba(255,47,191,'+(beatEnergy*.12)+')';
-      ctx.fillRect(w*.18,0,w*.64,h);
+    if(pulse>.28){
+      ctx.fillStyle='rgba(255,47,191,'+(pulse*.08)+')';
+      for(var g=0;g<3;g++){
+        var gx=w*(.18+Math.random()*.64);
+        var gy=h*(.22+Math.random()*.56);
+        ctx.fillRect(gx,gy,8+Math.random()*34,1);
+      }
     }
   }
 
